@@ -1,3 +1,4 @@
-# jackknife-bootstrap-estimator
+# jackknife-bootstrap-R
 
-Jackknife and Bootstrap estimators in R
+Jackknife and Bootstrap resampling and estimation in R.
+      
