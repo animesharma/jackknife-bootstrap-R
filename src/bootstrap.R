@@ -26,6 +26,8 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	bootstrap_var = mean(sapply(1 : n_boot, function(i) (boot_df$SampleStat[i] - est_stat)^2))
 	bootstrap_se = sqrt(bootstrap_var)
 	#bookversion
+	lq = quantile(boot_df$BootVector, .025)
+	uq = quantile(boot_df$BootVector, .975)
 	boot_piv_conf = c(
 		2 * data_mean - uq, 
 		2 * data_mean - lq
@@ -34,8 +36,6 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 		data_mean - 2 * bootstrap_se, 
 		data_mean + 2 * bootstrap_se
 	)
-	lq = quantile(boot_df$BootVector, .025)
-	uq = quantile(boot_df$BootVector, .975)
 	boot_per_conf = c(lq, uq)
 	#professorversion(no percentile)
 	#here professor's piv is sample_mean-(sample_sd/sqrt(n))*uq, but according to the book,I think it shoud be 2*sample
