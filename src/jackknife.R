@@ -6,7 +6,9 @@ jackknife_estimator = function(data, stat_func = sd) {
 	est_sd = sd(jack)
 	est_bias = (n - 1) * (t_bar - t) 
 	est_se = sqrt((n - 1) * mean((jack - t_bar)^2))
-	return(c(est_sd, est_bias, est_se))
+	ci_lb = t_bar - (1.96 * est_se)
+	ci_ub = t_bar + (1.96 * est_se)
+	return(c(est_sd, est_bias, est_se, ci_lb, ci_ub))
 }
 
 temp = 1:10
