@@ -14,8 +14,13 @@ jackknife_estimator = function(data, stat_func = sd) {
 	ci_lb = t_bar - (1.96 * est_se)
 	ci_ub = t_bar + (1.96 * est_se)
 	# Return a vector of calculated values
-	return(c(est_sd, est_bias, est_se, ci_lb, ci_ub))
+	return(c(
+		est_sd, 
+		est_bias, 
+		est_se, 
+		ci_lb, 
+		ci_ub
+	))
 }
 
-temp = 1:10
-print(jackknife_estimator(temp, mean))
+print(jackknife_estimator(1:10, mean))
