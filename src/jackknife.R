@@ -1,11 +1,11 @@
-jackknife_estimator = function(data, stat_func = sd) {
+jackknife_estimator = function(i, data, stat_func = sd) {
 	n = length(data)
 	t = stat_func(data)
 	# Calculate the jackknife vector by resampling data with one value removed
 	jack = sapply(1 : n, function(i) stat_func(data[-i]))
 	# Calculate t_bar as the mean of the jackknife vector
 	t_bar = mean(jack)
-	print(t_bar)
+	# print(t_bar)
 	# Calculate the estimated standard deviation, bias and standard error
 	est_sd = sd(jack)
 	est_bias = (n - 1) * (t_bar - t) 
@@ -22,5 +22,3 @@ jackknife_estimator = function(data, stat_func = sd) {
 		ci_ub
 	))
 }
-
-print(jackknife_estimator(1:10, mean))

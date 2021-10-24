@@ -8,7 +8,7 @@ bootstrap_operations = function(i, data, n, data_mean, stat_func) {
 	return(c(boot_val, boot_bias_val, sample_sd, sample_stat))
 }
 
-bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
+bootstrap_estimator = function(i, data, stat_func = sd, n_boot = 10000) {
 	n = length(data)
 	data_mean = mean(data)
 	data_sd = sd(data)
@@ -17,7 +17,7 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	boot = sapply(1 : n_boot, bootstrap_operations, data, n, data_mean, stat_func)
 	boot_df = as.data.frame(t(boot))
 	colnames(boot_df) = c("BootVector", "BootBiasVector", "SampleSD", "SampleStat")
-	print(head(boot_df))
+	# print(head(boot_df))
 	# Calculate the estimated standard deviation, bias and statistic
 	est_sd = mean(boot_df$SampleSD)
 	est_bias = mean(boot_df$BootBiasVector)
@@ -63,4 +63,3 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	))
 }
 
-print(bootstrap_estimator(1:10, mean))
