@@ -38,10 +38,9 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	)
 	boot_per_conf = c(lq, uq)
 	#professorversion(no percentile)
-	#here professor's piv is sample_mean-(sample_sd/sqrt(n))*uq, but according to the book,I think it shoud be 2*sample
 	boot_piv_conf_2 = c(
-		2 * data_mean - (data_sd / sqrt(n)) * uq, 
-		2 * data_mean - (data_sd / sqrt(n)) * lq
+		data_mean - (data_sd / sqrt(n)) * uq, 
+		data_mean - (data_sd / sqrt(n)) * lq
 	)
 	boot_norm_conf_2 = c(
 		data_mean - (data_sd / sqrt(n)) * qnorm(0.975), 
@@ -49,8 +48,8 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	)
 	#my guess
 	boot_per_conf_2 = c(
-		(data_sd / sqrt(n)) * uq, 
-		(data_sd / sqrt(n)) * lq
+		data_mean - (data_sd / sqrt(n)) * uq, 
+		data_mean - (data_sd / sqrt(n)) * lq
 	)
 	return(c(
 		bootstrap_se, 
