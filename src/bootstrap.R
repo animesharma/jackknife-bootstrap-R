@@ -8,7 +8,7 @@ bootstrap_operations = function(i, data, n, data_mean, stat_func) {
 	return(c(boot_val, boot_bias_val, sample_sd, sample_stat))
 }
 
-bootstrap_estimator = function(i, data, stat_func = sd, n_boot = 10000) {
+bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 	n = length(data)
 	data_mean = mean(data)
 	data_sd = sd(data)

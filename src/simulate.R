@@ -2,10 +2,19 @@
 source("./bootstrap.R")
 source("./jackknife.R")
 
+# Number of simulations
 simulations = 1000
 
-simulate_resampling = function(test_vector) {
-    jackknife_result = sapply(1 : simulations, jackknife_estimator, data = test_vector, stat_func = mean)
+# Function to calculate requisite Jackknife and bootstrap values
+simulate_resampling = function(num_samples, sample_mean, sample_sd) {
+    # Generate a matrix of test vectors with the function parameters using rlnorm
+    test_vectors = sapply(1:simulations, function(i) {
+            rlnorm(num_samples, sample_mean, sample_sd)
+        })
+    # Compute the jackknife estimate and save it as a dataframe
+    jackknife_result = sapply(1:simulations, function(i) {
+            jackknife_estimator(data = test_vectors[,i], stat_func = mean)
+        })
     jackknife_df = as.data.frame(t(jackknife_result))
     colnames(jackknife_df) = c(
         "Jack_Estimated_SD",
@@ -14,7 +23,10 @@ simulate_resampling = function(test_vector) {
         "Jack_CI_LB",
         "Jack_CI_UB"
     )
-    bootstrap_result = sapply(1 : simulations, bootstrap_estimator, data = test_vector, stat_func = mean)
+    # Compute the bootstrap estimate and save it as a dataframe
+    bootstrap_result = sapply(1:simulations, function(i) {
+            bootstrap_estimator(data = test_vectors[,i], stat_func = mean)
+        })
     bootstrap_df = as.data.frame(t(bootstrap_result))
     colnames(bootstrap_df) = c(
         "Boot_SE",
@@ -32,23 +44,27 @@ simulate_resampling = function(test_vector) {
         "Boot_Percentile_CI_LB_Prof",
         "Boot_Percentile_CI_UB_Prof"
     )
+    # Aggregate the jackknife and bootstrap dataframes into one dataframe
     aggregate_df = cbind(jackknife_df, bootstrap_df)
+    # Print head of aggregated dataframe
     print(head(aggregate_df))
 }
 
+# Parameters passed to rlnorm
+test_vector_mean <- 10
+test_vector_sd <- 50
+# Ensure that the values passed to rlnorm will actually have the expected mean and sd
+location <- log(test_vector_mean^2 / sqrt(test_vector_sd^2 + test_vector_mean^2))
+shape <- sqrt(log(1 + (test_vector_sd^2 / test_vector_mean^2)))
+
 # 10 samples
-test_vector = rlnorm(10, 100, 25)
-simulate_resampling(test_vector)
+num_samples = 10
+simulate_resampling(num_samples, location, shape)
 
 # 30 samples
-test_vector = rlnorm(30, 100, 25)
-simulate_resampling(test_vector)
+num_samples = 30
+simulate_resampling(num_samples, location, shape)
 
 # 100 samples
-test_vector = rlnorm(100, 100, 25)
-simulate_resampling(test_vector)
-
-#jackknife_result = jackknife_estimator(test_vector, mean)
-#bootstrap_result = bootstrap_estimator(test_vector, mean)
-#print("Jackknife: ", jackknife_result)
-#print("Bootstrap: ", bootstrap_estimator)
+num_samples = 100
+simulate_resampling(num_samples, location, shape)

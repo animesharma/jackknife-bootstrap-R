@@ -1,4 +1,4 @@
-jackknife_estimator = function(i, data, stat_func = sd) {
+jackknife_estimator = function(data, stat_func = sd) {
 	n = length(data)
 	t = stat_func(data)
 	# Calculate the jackknife vector by resampling data with one value removed
