@@ -9,5 +9,5 @@ std_norm_dist <- function(data) {
   ci_lb <- sample_mean - (1.96 * sample_sd)
   ci_ub <- sample_mean + (1.96 * sample_sd)
   
-  return (c(ci_lb, ci_ub))
+  return (list(ci_lb = ci_lb, ci_ub = ci_ub))
 }
