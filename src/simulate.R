@@ -21,7 +21,8 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Jack_Estimated_Bias",
 		"Jack_Estimated_SE",
 		"Jack_CI_LB",
-		"Jack_CI_UB"
+		"Jack_CI_UB",
+		"Jack_Coverage_Rate"
 	)
 
 	# Compute the standard normal distribution and save it as a dataframe
@@ -31,7 +32,8 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 	std_norm_df = as.data.frame(t(std_norm_result))
 	colnames(std_norm_df) = c(
 		"Standard_Normal_LB",
-		"Standard_Normal_UB"
+		"Standard_Normal_UB",
+		"Standard_Normal_Coverage_Rate"
 	)
 	# Compute the bootstrap estimate and save it as a dataframe
 	bootstrap_result = sapply(1:simulations, function(i) {
@@ -43,15 +45,19 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Boot_Estimated_Bias",
 		"Boot_Pivotal_CI_LB",
 		"Boot_Pivotal_CI_UB",
+		"Boot_Pivotal_Coverage_Rate",
 		"Boot_Normal_CI_LB",
 		"Boot_Normal_CI_UB",
+		"Boot_Normal_Coverage_Rate",
 		"Boot_Percentile_CI_LB",
-		"Boot_Percentile_CI_UB"
+		"Boot_Percentile_CI_UB",
+		"Boot_Percentile_Coverage_Rate"
 	)
 	# Aggregate the jackknife, bootstrap and standard normal dataframes into one dataframe
 	aggregate_df = cbind(jackknife_df, bootstrap_df,std_norm_df)
 	# Print head of aggregated dataframe
 	print(head(aggregate_df))
+	return(aggregate_df)
 }
 
 # Parameters passed to rlnorm
@@ -61,14 +67,34 @@ test_vector_sd = 50
 location = log(test_vector_mean^2 / sqrt(test_vector_sd^2 + test_vector_mean^2))
 shape = sqrt(log(1 + (test_vector_sd^2 / test_vector_mean^2)))
 
+####################################
+# The results below need to be properly tabulated, I just used the print function to check the values.
+# We can create a vector c(10, 30, 100) and then use apply to clear out some of the repeated code.
+####################################
+
 # 10 samples
 num_samples = 10
-simulate_resampling(num_samples, location, shape)
+temp = simulate_resampling(num_samples, location, shape)
+print(mean(temp$Jack_Coverage_Rate))
+print(mean(temp$Boot_Pivotal_Coverage_Rate))
+print(mean(temp$Boot_Normal_Coverage_Rate))
+print(mean(temp$Boot_Percentile_Coverage_Rate))
+print(mean(temp$Standard_Normal_Coverage_Rate))
 
 # 30 samples
 num_samples = 30
-simulate_resampling(num_samples, location, shape)
+temp = simulate_resampling(num_samples, location, shape)
+print(mean(temp$Jack_Coverage_Rate))
+print(mean(temp$Boot_Pivotal_Coverage_Rate))
+print(mean(temp$Boot_Normal_Coverage_Rate))
+print(mean(temp$Boot_Percentile_Coverage_Rate))
+print(mean(temp$Standard_Normal_Coverage_Rate))
 
 # 100 samples
 num_samples = 100
-simulate_resampling(num_samples, location, shape)
+temp = simulate_resampling(num_samples, location, shape)
+print(mean(temp$Jack_Coverage_Rate))
+print(mean(temp$Boot_Pivotal_Coverage_Rate))
+print(mean(temp$Boot_Normal_Coverage_Rate))
+print(mean(temp$Boot_Percentile_Coverage_Rate))
+print(mean(temp$Standard_Normal_Coverage_Rate))

@@ -1,3 +1,5 @@
+source("./coverage.R")
+
 jackknife_estimator = function(data, stat_func = sd) {
 	n = length(data)
 	t = stat_func(data)
@@ -13,12 +15,15 @@ jackknife_estimator = function(data, stat_func = sd) {
 	# Calculate the 95th percentile confidence interval for the Jackknife estimator
 	ci_lb = t_bar - (1.96 * est_se)
 	ci_ub = t_bar + (1.96 * est_se)
+	# Calulate the coverage rate for the jackknife confidence interval
+	coverage_rate = compute_coverage_rate(data, ci_lb, ci_ub)
 	# Return a vector of calculated values
 	return(c(
 		est_sd, 
 		est_bias, 
 		est_se, 
 		ci_lb, 
-		ci_ub
+		ci_ub,
+		coverage_rate
 	))
 }

@@ -1,3 +1,5 @@
+source("./coverage.R")
+
 bootstrap_operations = function(i, data, n, data_mean, stat_func) {
 	sampled_data = sample(data, n, replace = TRUE)
 	sample_mean = mean(sampled_data)
@@ -33,23 +35,32 @@ bootstrap_estimator = function(data, stat_func = sd, n_boot = 10000) {
 		data_mean - 1.96 * bootstrap_se, 
 		data_mean + 1.96 * bootstrap_se
 	)
+	# Calulate the coverage rate for the confidence interval
+	boot_norm_coverage_rate = compute_coverage_rate(data, boot_norm_conf[1], boot_norm_conf[2])
 	
 	boot_piv_conf = c(
 		data_mean - (data_sd / sqrt(n)) * uq, 
 		data_mean - (data_sd / sqrt(n)) * lq
 	)
+	# Calulate the coverage rate for the confidence interval
+	boot_piv_coverage_rate = compute_coverage_rate(data, boot_piv_conf[1], boot_piv_conf[2])
+
 	#boot_norm_conf = c(
 	#	data_mean - (data_sd / sqrt(n)) * qnorm(0.975), 
 	#	data_mean + (data_sd / sqrt(n)) * qnorm(0.975)
 	#)
 	boot_per_conf = c(lq, uq)
+	# Calulate the coverage rate for the confidence interval
+	boot_per_coverage_rate = compute_coverage_rate(data, boot_per_conf[1], boot_per_conf[2])
 
 	return(c(
 		bootstrap_se, 
 		est_bias, 
 		boot_piv_conf,
+		boot_piv_coverage_rate,
 		boot_norm_conf,
-		boot_per_conf
+		boot_norm_coverage_rate,
+		boot_per_conf,
+		boot_per_coverage_rate
 	))
 }
-
