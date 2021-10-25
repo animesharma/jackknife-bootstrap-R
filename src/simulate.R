@@ -17,8 +17,11 @@ generate_rlnorm <- function(num_samples,
 
 # Simulate Bootstrapping
 simulate_resampling <- function(data, num_simulations = 1000) {
-  for (i in 1:num_simulations)
+  for (i in 1:num_simulations) {
+      print(i)
+
     bootstrap_estimator(data, mean, 10000)
+  }
 }
 
 # Number of Simulations
