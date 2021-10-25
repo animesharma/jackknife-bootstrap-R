@@ -1,9 +1,9 @@
-std_norm_dist = function(data, stat_func = sd, meann, std_dev){
-  n = length(data)
-  t = stat_func(data)
-  # Calculate the jackknife vector by resampling data with one value removed
-  std = sapply(1 : n, function(i) stat_func(data[i]))
-  lb=meann-(1.96*std_dev)
-  ub=meann+(1.96*std_dev)
-  return (c(lb,ub))
+std_norm_dist = function(data) {
+	# Calculate Sample mean and Sample standard deviation from the data
+	sample_mean = mean(data)
+	sample_sd = sd(data)
+	# Calculate the 95th percentile confidence interval for standard normal distribution
+	lb = sample_mean - (1.96 * sample_sd)
+	ub = sample_mean + (1.96 * sample_sd)
+	return (c(lb, ub))
 }
