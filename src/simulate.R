@@ -41,18 +41,12 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 	colnames(bootstrap_df) = c(
 		"Boot_SE",
 		"Boot_Estimated_Bias",
-		"Boot_Pivotal_CI_LB_Book",
-		"Boot_Pivotal_CI_UB_Book",
-		"Boot_Normal_CI_LB_Book",
-		"Boot_Normal_CI_UB_Book",
-		"Boot_Percentile_CI_LB_Book",
-		"Boot_Percentile_CI_UB_Book",
-		"Boot_Pivotal_CI_LB_Prof",
-		"Boot_Pivotal_CI_UB_Prof",
-		"Boot_Normal_CI_LB_Prof",
-		"Boot_Normal_CI_UB_Prof",
-		"Boot_Percentile_CI_LB_Prof",
-		"Boot_Percentile_CI_UB_Prof"
+		"Boot_Pivotal_CI_LB",
+		"Boot_Pivotal_CI_UB",
+		"Boot_Normal_CI_LB",
+		"Boot_Normal_CI_UB",
+		"Boot_Percentile_CI_LB",
+		"Boot_Percentile_CI_UB"
 	)
 	# Aggregate the jackknife, bootstrap and standard normal dataframes into one dataframe
 	aggregate_df = cbind(jackknife_df, bootstrap_df,std_norm_df)
