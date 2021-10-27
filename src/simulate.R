@@ -3,17 +3,19 @@ source("./bootstrap.R")
 source("./jackknife.R")
 source("./stdnorm.R")
 # Number of simulations
-simulations = 1000
+simulations = 100
 
 # Function to calculate requisite Jackknife and bootstrap values
 simulate_resampling = function(num_samples, sample_mean, sample_sd) {
+	coverage_val = exp(sample_mean + ((sample_sd ^ 2) / 2))
 	# Generate a matrix of test vectors with the function parameters using rlnorm
 	test_vectors = sapply(1:simulations, function(i) {
 		rlnorm(num_samples, sample_mean, sample_sd)
 	})
+	print(coverage_val)
 	# Compute the jackknife estimate and save it as a dataframe
 	jackknife_result = sapply(1:simulations, function(i) {
-		jackknife_estimator(data = test_vectors[,i], stat_func = mean)
+		jackknife_estimator(data = test_vectors[,i], stat_func = mean, coverage_val)
 	})
 	jackknife_df = as.data.frame(t(jackknife_result))
 	colnames(jackknife_df) = c(
@@ -27,7 +29,7 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 
 	# Compute the standard normal distribution and save it as a dataframe
 	std_norm_result = sapply(1:simulations, function(i) {
-		std_norm_dist(data = test_vectors[,i])
+		std_norm_dist(data = test_vectors[,i], coverage_val)
 	})
 	std_norm_df = as.data.frame(t(std_norm_result))
 	colnames(std_norm_df) = c(
@@ -37,11 +39,11 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 	)
 	# Compute the bootstrap estimate and save it as a dataframe
 	bootstrap_result = sapply(1:simulations, function(i) {
-		bootstrap_estimator(data = test_vectors[,i], stat_func = mean)
+		bootstrap_estimator(data = test_vectors[,i], stat_func = mean, coverage_val)
 	})
 	bootstrap_df = as.data.frame(t(bootstrap_result))
 	colnames(bootstrap_df) = c(
-		"Boot_SE",
+		"Boot_SD",
 		"Boot_Estimated_Bias",
 		"Boot_Pivotal_CI_LB",
 		"Boot_Pivotal_CI_UB",
@@ -54,47 +56,37 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Boot_Percentile_Coverage_Rate"
 	)
 	# Aggregate the jackknife, bootstrap and standard normal dataframes into one dataframe
-	aggregate_df = cbind(jackknife_df, bootstrap_df,std_norm_df)
+	aggregate_df = cbind(jackknife_df, bootstrap_df, std_norm_df)
 	# Print head of aggregated dataframe
 	print(head(aggregate_df))
 	return(aggregate_df)
 }
 
-# Parameters passed to rlnorm
-test_vector_mean = 10
-test_vector_sd = 50
+
 # Ensure that the values passed to rlnorm will actually have the expected mean and sd
-location = log(test_vector_mean^2 / sqrt(test_vector_sd^2 + test_vector_mean^2))
-shape = sqrt(log(1 + (test_vector_sd^2 / test_vector_mean^2)))
+#location = log(test_vector_mean^2 / sqrt(test_vector_sd^2 + test_vector_mean^2))
+#shape = sqrt(log(1 + (test_vector_sd^2 / test_vector_mean^2)))
 
 ####################################
 # The results below need to be properly tabulated, I just used the print function to check the values.
 # We can create a vector c(10, 30, 100) and then use apply to clear out some of the repeated code.
 ####################################
 
-# 10 samples
-num_samples = 10
-temp = simulate_resampling(num_samples, location, shape)
-print(mean(temp$Jack_Coverage_Rate))
-print(mean(temp$Boot_Pivotal_Coverage_Rate))
-print(mean(temp$Boot_Normal_Coverage_Rate))
-print(mean(temp$Boot_Percentile_Coverage_Rate))
-print(mean(temp$Standard_Normal_Coverage_Rate))
+main = function(num_samples, expected_input_mean, expected_input_sd) {
+	temp = simulate_resampling(num_samples, test_vector_mean, test_vector_sd)
+	print(sum(temp$Jack_Coverage_Rate)/simulations)
+	print(sum(temp$Boot_Pivotal_Coverage_Rate)/simulations)
+	print(sum(temp$Boot_Normal_Coverage_Rate)/simulations)
+	print(sum(temp$Boot_Percentile_Coverage_Rate)/simulations)
+	print(sum(temp$Standard_Normal_Coverage_Rate)/simulations)
+}
 
-# 30 samples
-num_samples = 30
-temp = simulate_resampling(num_samples, location, shape)
-print(mean(temp$Jack_Coverage_Rate))
-print(mean(temp$Boot_Pivotal_Coverage_Rate))
-print(mean(temp$Boot_Normal_Coverage_Rate))
-print(mean(temp$Boot_Percentile_Coverage_Rate))
-print(mean(temp$Standard_Normal_Coverage_Rate))
+# Parameters passed to rlnorm
+expected_input_mean = 0
+expected_input_sd = 1
 
-# 100 samples
-num_samples = 100
-temp = simulate_resampling(num_samples, location, shape)
-print(mean(temp$Jack_Coverage_Rate))
-print(mean(temp$Boot_Pivotal_Coverage_Rate))
-print(mean(temp$Boot_Normal_Coverage_Rate))
-print(mean(temp$Boot_Percentile_Coverage_Rate))
-print(mean(temp$Standard_Normal_Coverage_Rate))
+num_samples = c(10, 30, 100)
+res = sapply(num_samples, function(i) {
+	main(i, expected_input_mean, expected_input_sd)
+})
+
