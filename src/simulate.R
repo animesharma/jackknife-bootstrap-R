@@ -2,17 +2,21 @@
 source("./bootstrap.R")
 source("./jackknife.R")
 source("./stdnorm.R")
-# Number of simulations
-simulations = 100
 
-# Function to calculate requisite Jackknife and bootstrap values
+# Number of simulations
+simulations = 1000
+
+# Function to calculate requisite Jackknife, Standard Normal and Bootstrap values
 simulate_resampling = function(num_samples, sample_mean, sample_sd) {
+
+	# Calculate the coverage value to check coverage rate of confidence intervals
 	coverage_val = exp(sample_mean + ((sample_sd ^ 2) / 2))
+
 	# Generate a matrix of test vectors with the function parameters using rlnorm
 	test_vectors = sapply(1:simulations, function(i) {
 		rlnorm(num_samples, sample_mean, sample_sd)
 	})
-	print(coverage_val)
+
 	# Compute the jackknife estimate and save it as a dataframe
 	jackknife_result = sapply(1:simulations, function(i) {
 		jackknife_estimator(data = test_vectors[,i], stat_func = mean, coverage_val)
@@ -22,8 +26,8 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Jack_Estimated_SD",
 		"Jack_Estimated_Bias",
 		"Jack_Estimated_SE",
-		"Jack_CI_LB",
-		"Jack_CI_UB",
+		"Jack_CI_Lower_Bound",
+		"Jack_CI_Upper_Bound",
 		"Jack_Coverage_Rate"
 	)
 
@@ -37,13 +41,15 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Standard_Normal_UB",
 		"Standard_Normal_Coverage_Rate"
 	)
+
 	# Compute the bootstrap estimate and save it as a dataframe
 	bootstrap_result = sapply(1:simulations, function(i) {
 		bootstrap_estimator(data = test_vectors[,i], stat_func = mean, coverage_val)
 	})
 	bootstrap_df = as.data.frame(t(bootstrap_result))
 	colnames(bootstrap_df) = c(
-		"Boot_SD",
+		"Boot_Estimated_SE",
+		"Boot_Estimated_SD",
 		"Boot_Estimated_Bias",
 		"Boot_Pivotal_CI_LB",
 		"Boot_Pivotal_CI_UB",
@@ -55,38 +61,59 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Boot_Percentile_CI_UB",
 		"Boot_Percentile_Coverage_Rate"
 	)
+
 	# Aggregate the jackknife, bootstrap and standard normal dataframes into one dataframe
 	aggregate_df = cbind(jackknife_df, bootstrap_df, std_norm_df)
-	# Print head of aggregated dataframe
-	print(head(aggregate_df))
+	
 	return(aggregate_df)
 }
 
-
-# Ensure that the values passed to rlnorm will actually have the expected mean and sd
-#location = log(test_vector_mean^2 / sqrt(test_vector_sd^2 + test_vector_mean^2))
-#shape = sqrt(log(1 + (test_vector_sd^2 / test_vector_mean^2)))
-
-####################################
-# The results below need to be properly tabulated, I just used the print function to check the values.
-# We can create a vector c(10, 30, 100) and then use apply to clear out some of the repeated code.
-####################################
-
 main = function(num_samples, expected_input_mean, expected_input_sd) {
-	temp = simulate_resampling(num_samples, test_vector_mean, test_vector_sd)
-	print(sum(temp$Jack_Coverage_Rate)/simulations)
-	print(sum(temp$Boot_Pivotal_Coverage_Rate)/simulations)
-	print(sum(temp$Boot_Normal_Coverage_Rate)/simulations)
-	print(sum(temp$Boot_Percentile_Coverage_Rate)/simulations)
-	print(sum(temp$Standard_Normal_Coverage_Rate)/simulations)
+	# Build aggregate dataframe
+	result = simulate_resampling(num_samples, expected_input_mean, expected_input_sd)
+	# Print output
+	cat("\nSimulations: ", simulations, "\n")
+	cat("Number of samples: ", num_samples, "\n")
+	cat("\n\n*************************************************\n\n")
+	cat("Estimated Standard Deviations:\n\n")
+	print(result[1:10, c("Boot_Estimated_SD", "Jack_Estimated_SD")])
+	cat("\n\n*************************************************\n\n")
+	cat("Estimated Standard Errors:\n\n")
+	print(result[1:10, c("Boot_Estimated_SE", "Jack_Estimated_SE")])
+	cat("\n\n*************************************************\n\n")
+	cat("Estimated Bias:\n\n")
+	print(result[1:10, c("Boot_Estimated_Bias", "Jack_Estimated_Bias")])
+	cat("\n\n*************************************************\n\n")
+	cat("Jackknife Confidence Interval:\n\n")
+	print(result[1:10, c("Jack_CI_Lower_Bound", "Jack_CI_Upper_Bound")])
+	cat("\n\n*************************************************\n\n")
+	cat("Bootstrap Pivotal Confidence Interval:\n\n")
+	print(result[1:10, c("Boot_Pivotal_CI_LB", "Boot_Pivotal_CI_UB")])
+	cat("\n\n*************************************************\n\n")
+	cat("Bootstrap Normal Confidence Interval:\n\n")
+	print(result[1:10, c("Boot_Normal_CI_LB", "Boot_Normal_CI_UB")])
+	cat("\n\n*************************************************\n\n")
+	cat("Bootstrap Percentile Confidence Interval:\n\n")
+	print(result[1:10, c("Boot_Percentile_CI_LB", "Boot_Percentile_CI_UB")])
+	cat("\n\n*************************************************\n\n")
+	cat("Standard Normal Confidence Interval:\n\n")
+	print(result[1:10, c("Standard_Normal_LB", "Standard_Normal_UB")])
+	cat("\n\n*************************************************\n\n")
+	cat("Coverage Rates:\n\n")
+	cat("Jackknife Coverage Rate: ", sum(result$Jack_Coverage_Rate)/simulations, "\n")
+	cat("Bootstrap Pivotal Coverage Rate: ", sum(result$Boot_Pivotal_Coverage_Rate)/simulations, "\n")
+	cat("Bootstrap Normal Coverage Rate: ", sum(result$Boot_Normal_Coverage_Rate)/simulations, "\n")
+	cat("Bootstrap Percentile Coverage Rate: ", sum(result$Boot_Percentile_Coverage_Rate)/simulations, "\n")
+	cat("Standard Normal Coverage Rate: ", sum(result$Standard_Normal_Coverage_Rate)/simulations, "\n")
+	cat("\n\n###################################################\n\n")
 }
 
 # Parameters passed to rlnorm
 expected_input_mean = 0
 expected_input_sd = 1
 
+# Run simulations for test vector sizes 10, 30 and 100
 num_samples = c(10, 30, 100)
 res = sapply(num_samples, function(i) {
 	main(i, expected_input_mean, expected_input_sd)
 })
-

@@ -1,3 +1,5 @@
+source("./coverage.R")
+
 std_norm_dist = function(data, expected_input_mean) {
 	n = length(data)
 	# Calculate Sample mean and Sample standard deviation from the data

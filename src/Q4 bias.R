@@ -1,4 +1,3 @@
-
 ### Bootstrap
 BootBias_sd=function(inp,nsim=1000)
 {
@@ -18,10 +17,6 @@ BootBias_sd=function(inp,nsim=1000)
   return(final_bias_boot)
 }
 
-set.seed(1)
-inp = rnorm(100)
-
-BootBias_sd(inp)
 
 ### Jackknife
 
@@ -46,8 +41,8 @@ jackknife_sd=function(inp)
   return(final_bias_jk)
 }
 
-set.seed(1)
-inp2 = rnorm(100)
+inp = rnorm(100)
 
-jackknife_sd(inp2)
+cat("Estimated Bootstrap Standard Deviation Bias: ", BootBias_sd(inp))
+cat("Estimated Jackknife Standard Deviation Bias: ", jackknife_sd(inp))
 
