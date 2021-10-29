@@ -2,9 +2,10 @@
 source("./bootstrap.R")
 source("./jackknife.R")
 source("./stdnorm.R")
+source("./boot_est.R")
 
 # Number of simulations
-simulations = 1000
+simulations = 100
 
 # Function to calculate requisite Jackknife, Standard Normal and Bootstrap values
 simulate_resampling = function(num_samples, sample_mean, sample_sd) {
@@ -30,7 +31,6 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Jack_CI_Upper_Bound",
 		"Jack_Coverage_Rate"
 	)
-
 	# Compute the standard normal distribution and save it as a dataframe
 	std_norm_result = sapply(1:simulations, function(i) {
 		std_norm_dist(data = test_vectors[,i], coverage_val)
@@ -41,7 +41,6 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Standard_Normal_UB",
 		"Standard_Normal_Coverage_Rate"
 	)
-
 	# Compute the bootstrap estimate and save it as a dataframe
 	bootstrap_result = sapply(1:simulations, function(i) {
 		bootstrap_estimator(data = test_vectors[,i], stat_func = mean, coverage_val)
@@ -61,9 +60,17 @@ simulate_resampling = function(num_samples, sample_mean, sample_sd) {
 		"Boot_Percentile_CI_UB",
 		"Boot_Percentile_Coverage_Rate"
 	)
-
+	bootstrap_piv_result = sapply(1:simulations, function(i) {
+		boot_piv_estimator(data = test_vectors[,i], stat_func = sd, coverage_val)
+	})
+	bootstrap_piv_df = as.data.frame(t(bootstrap_piv_result))
+	colnames(bootstrap_piv_df) = c(
+		"Q5_Boot_Pivotal_CI_LB",
+		"Q5_Boot_Pivotal_CI_UB",
+		"Q5_Boot_Pivotal_Coverage_Rate"
+	)
 	# Aggregate the jackknife, bootstrap and standard normal dataframes into one dataframe
-	aggregate_df = cbind(jackknife_df, bootstrap_df, std_norm_df)
+	aggregate_df = cbind(jackknife_df, bootstrap_df, std_norm_df, bootstrap_piv_df)
 	
 	return(aggregate_df)
 }
@@ -105,6 +112,10 @@ main = function(num_samples, expected_input_mean, expected_input_sd) {
 	cat("Bootstrap Normal Coverage Rate: ", sum(result$Boot_Normal_Coverage_Rate)/simulations, "\n")
 	cat("Bootstrap Percentile Coverage Rate: ", sum(result$Boot_Percentile_Coverage_Rate)/simulations, "\n")
 	cat("Standard Normal Coverage Rate: ", sum(result$Standard_Normal_Coverage_Rate)/simulations, "\n")
+	cat("\n\n*************************************************\n\n")
+	cat("Q5 Bootstrap Pivotal Confidence Interval:\n\n")
+	print(result[1:10, c("Q5_Boot_Pivotal_CI_LB", "Q5_Boot_Pivotal_CI_UB")])
+	cat("\nQ5_Bootstrap Percentile Coverage Rate: ", sum(result$Q5_Boot_Pivotal_Coverage_Rate)/simulations, "\n")
 	cat("\n\n###################################################\n\n")
 }
 
@@ -117,3 +128,4 @@ num_samples = c(10, 30, 100)
 res = sapply(num_samples, function(i) {
 	main(i, expected_input_mean, expected_input_sd)
 })
+

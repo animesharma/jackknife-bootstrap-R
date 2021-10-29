@@ -15,19 +15,4 @@ pivotal_conf_intv_estimator = function(data, stat_func = var) {
   est_sd_hat=sqrt(var(est_pv)/n)
   return(c(est_sd_hat))
 }
-  # est_var = (n - 1) * mean((jack - t_bar)^2)
-  # # Calculate the 95th percentile confidence interval for the Jackknife estimator
-  # ci_lb = t_bar - (1.96 * est_var)
-  # ci_ub = t_bar + (1.96 * est_var)
-  # # Calulate the coverage rate for the jackknife confidence interval
-  # coverage_rate = compute_coverage_rate(data, ci_lb, ci_ub)
-  # # Return a vector of calculated values
-  # return(c(
-  #   est_sd, 
-  #   est_bias, 
-  #   est_se, 
-  #   ci_lb, 
-  #   ci_ub,
-  #   coverage_rate
-  # ))
 
